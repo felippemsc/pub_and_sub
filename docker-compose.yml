@@ -1,0 +1,54 @@
+version: '3'
+services:
+  consumer:
+    build: .
+    command: sh -c "sleep 30 && python main.py init-consumer -w 3"
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_USER=rabbit
+      - RABBIT_PASS=password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  api:
+    build: .
+    command: sh -c "sleep 30 && gunicorn -w 4 -b 0.0.0.0:8080 --log-config logging.ini main:app"
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_USER=rabbit
+      - RABBIT_PASS=password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_USER=example
+      - DB_PASSWORD=password
+    ports:
+    - "8080:8080"
+#    command:
+#      sh ./sleep_and_run.sh
+
+  database:
+    image: mysql:8.0.16
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: example
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:5.0.5-alpine
+    command: redis-server
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3.7.14-management-alpine
+    hostname: my-rabbit
+    ports:
+      - "5462:5462"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbit
+      - RABBITMQ_DEFAULT_PASS=password
