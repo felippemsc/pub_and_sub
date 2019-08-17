@@ -1,0 +1,7 @@
+-r requirements.txt
+
+awscli
+coverage==4.5.4
+docker-compose
+pycodestyle==2.5.0
+pylint==2.3.1
