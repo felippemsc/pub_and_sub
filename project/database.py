@@ -1,5 +1,6 @@
 # coding: utf-8
-"""Module database
+"""
+Module database
 
 Author: Felippe Costa <felippemsc@gmail.com>
 """
@@ -11,7 +12,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 
 
-META = MetaData(schema="base_schema")
+META = MetaData(schema="base_db")
 BASE = declarative_base(metadata=META)
 DBSESSION = scoped_session(sessionmaker())
 
