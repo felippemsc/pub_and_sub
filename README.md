@@ -1,5 +1,10 @@
 TODO:
+* Implementar tratamento de status quando o get for None
+(Talvez dar um retry para salvar caso não esteja lá,
+Fazer uma função apropriada de inicialização de status,
+no caso de falha reutilizar ela)
 * Implementar status, ideia de schema abaixo
+* Implementar serializacao parcial
 
 numbers = fields.List(fields.Float())
 

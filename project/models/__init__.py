@@ -39,6 +39,15 @@ class BaseModel(AbstractConcreteBase, BASE):
         """
         super(BaseModel, self).__init__(*args, **kwargs)
 
+    @property
+    def key_status(self):
+        """
+        Gets the status key
+        """
+        if self.id is None:
+            return ''
+        return f"{self.__tablename__}.{self.id}"
+
     def to_dict(self):
         """
         Serialize the object to a dict

@@ -11,6 +11,7 @@ from falcon import HTTP_CREATED, HTTP_NO_CONTENT
 from webargs.falconparser import use_args
 
 from ...models.example import Example
+from ...models.status import StatusBaseModel
 from ...schemas import ExampleSchema, QueryStringSchema
 
 LOG = logging.getLogger()
@@ -28,6 +29,8 @@ class ExampleCollection:
         Creates an Example resource
         """
         instance = self.model(**payload).commit()
+
+        status = StatusBaseModel(key=instance.key_status).set()
 
         response.status = HTTP_CREATED
         response.body = json.dumps(instance.to_dict())
@@ -58,6 +61,7 @@ class ExampleResource:
         Gets an Example resource
         """
         instance = self.model.get(id_)
+        status = StatusBaseModel(key=instance.key_status).get()
 
         response.body = json.dumps(instance.to_dict())
 

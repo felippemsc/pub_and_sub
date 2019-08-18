@@ -13,6 +13,9 @@ class BaseConfig:
     RABBIT_PASS = os.getenv('RABBIT_PASS', 'password')
     RABBIT_HOST = os.getenv('RABBIT_HOST', '172.31.0.4')
 
+    REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+    REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+
     DB_NAME = os.getenv('DB_ENDPOINT', 'base_db')
     DB_SCHEMA = os.getenv('DB_SCHEMA', 'base_schema')
     DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
@@ -28,6 +31,9 @@ class TestConfig(BaseConfig):
     RABBIT_USER = os.getenv('RABBIT_USER')
     RABBIT_PASS = os.getenv('RABBIT_PASS')
     RABBIT_HOST = os.getenv('RABBIT_HOST')
+
+    REDIS_HOST = os.getenv('REDIS_HOST')
+    REDIS_PORT = os.getenv('REDIS_PORT')
 
     DB_NAME = os.getenv('DB_ENDPOINT')
     DB_SCHEMA = os.getenv('DB_SCHEMA')

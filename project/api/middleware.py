@@ -13,7 +13,7 @@ LOG = logging.getLogger(__name__)
 
 class DatabaseSessionManager:
     """
-    Removes the SQLAlchemy's session after each request
+    Removes the SQLAlchemy's session after each request.
     """
     def process_response(self, req, resp, resource, req_succeeded):
         """

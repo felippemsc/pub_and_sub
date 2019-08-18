@@ -43,3 +43,44 @@ class ExampleSchema(Schema):
 
     class Meta:
         strict = True
+
+
+class StatusSchema(Schema):
+    """
+    Schema for Status validation and serialization
+    """
+    state = fields.String(allow_none=True, validate=validate.Length(max=1))
+    dh_last_stage = fields.String()
+
+    class Meta:
+        strict = True
+
+
+# numbers = fields.List(fields.Float())
+#
+# {
+#     "status":
+#         {
+#             "situacao": "P",
+# 	    "porcentagem": 75,
+#       "dh_ultima_etapa": "",
+# 	    "id_ultima_etapa": 1,
+# 	    "ultimo_log": "Aguardando processamento em fila",
+# 	    "logs": [
+#                 {
+#                     "id_etapa": 1,
+#                     "logs_etapa": [
+#                         "log teste um",
+#                         "log teste dois"
+#                     ]
+#                 },
+#                 {
+#                     "id_etapa": 2,
+# 		    "logs_etapa": [
+#                         "log teste um",
+#                         "log teste dois"
+#                     ]
+#                 }
+#             ],
+#         }
+# }

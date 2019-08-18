@@ -6,6 +6,7 @@ Author: Felippe Costa <felippemsc@gmail.com>
 """
 import falcon
 
+from ..backend import init_backend
 from ..database import init_db
 
 from .exception_handler import ExceptionHandler
@@ -25,6 +26,7 @@ def create_app(app_settings):
     app.add_error_handler(Exception, ExceptionHandler.handle)
 
     init_db(app_settings.DATABASE_URI)
+    init_backend(app_settings.REDIS_HOST, app_settings.REDIS_PORT)
 
     # APIs
     app.add_route('/', RootResource())
