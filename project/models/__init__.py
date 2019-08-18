@@ -11,10 +11,9 @@ from sqlalchemy.exc import IntegrityError
 
 from ..database import BASE, DBSESSION
 
-LOG = logging.getLogger(__name__)
+from .status import StatusBaseModel
 
-DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-DATE_FORMAT = "%Y-%m-%d"
+LOG = logging.getLogger(__name__)
 
 
 class ModelExceptions(Exception):
@@ -48,6 +47,15 @@ class BaseModel(AbstractConcreteBase, BASE):
             return ''
         return f"{self.__tablename__}.{self.id}"
 
+    @property
+    def status(self):
+        """
+        Gets the status
+        """
+        if self.key_status is None:
+            return None
+        return StatusBaseModel.get(self.key_status)
+
     def to_dict(self):
         """
         Serialize the object to a dict
@@ -64,7 +72,7 @@ class BaseModel(AbstractConcreteBase, BASE):
 
         :return: list of dicts representing the objects
         """
-        serialized = cls._serializer(many=True).dump(instances)
+        serialized = cls._serializer(many=True, exclude=("status.logs",)).dump(instances)
         return serialized.data
 
     @classmethod
@@ -103,15 +111,6 @@ class BaseModel(AbstractConcreteBase, BASE):
 
         return instance_list
 
-    @classmethod
-    def count(cls):
-        """
-        Counts the number of row of the table related to the object
-
-        :return: integer
-        """
-        return DBSESSION.query(cls).count()
-
     def update(self, data: dict):
         """
         Updates a given registry
@@ -135,10 +134,20 @@ class BaseModel(AbstractConcreteBase, BASE):
         try:
             DBSESSION.add(self)
             DBSESSION.commit()
+
+            self.after_commit()
+
             return self
         except IntegrityError:
             DBSESSION.rollback()
             raise
+
+    def after_commit(self):
+        """
+        Actions to execute after commiting
+        """
+        init_status = StatusBaseModel(self.key_status, state='Z')
+        init_status.set()
 
     def delete(self):
         """

@@ -6,6 +6,8 @@ Author: Felippe Costa <felippemsc@gmail.com>
 """
 from marshmallow import Schema, fields, post_load, validate
 
+from ..constants import TP_STATUS
+
 
 class QueryStringSchema(Schema):
     """
@@ -40,6 +42,7 @@ class ExampleSchema(Schema):
     """
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True, validate=validate.Length(max=50))
+    status = fields.Nested("StatusSchema", dump_only=True)
 
     class Meta:
         strict = True
@@ -47,40 +50,25 @@ class ExampleSchema(Schema):
 
 class StatusSchema(Schema):
     """
-    Schema for Status validation and serialization
+    Schema for Status serialization
     """
-    state = fields.String(allow_none=True, validate=validate.Length(max=1))
+    state = fields.String(allow_none=True, validate=validate.OneOf(TP_STATUS))
+    percentage = fields.Integer(allow_none=True)
+    last_log = fields.String(allow_none=True)
+    id_last_stage = fields.Integer(allow_none=True)
     dh_last_stage = fields.String()
+    logs = fields.Nested("LogsSchema", many=True)
 
     class Meta:
         strict = True
 
 
-# numbers = fields.List(fields.Float())
-#
-# {
-#     "status":
-#         {
-#             "situacao": "P",
-# 	    "porcentagem": 75,
-#       "dh_ultima_etapa": "",
-# 	    "id_ultima_etapa": 1,
-# 	    "ultimo_log": "Aguardando processamento em fila",
-# 	    "logs": [
-#                 {
-#                     "id_etapa": 1,
-#                     "logs_etapa": [
-#                         "log teste um",
-#                         "log teste dois"
-#                     ]
-#                 },
-#                 {
-#                     "id_etapa": 2,
-# 		    "logs_etapa": [
-#                         "log teste um",
-#                         "log teste dois"
-#                     ]
-#                 }
-#             ],
-#         }
-# }
+class LogsSchema(Schema):
+    """
+    Schema for Logs serialization
+    """
+    id_etapa = fields.Integer(allow_none=True)
+    logs_etapa = fields.List(fields.String(allow_none=True))
+
+    class Meta:
+        strict = True
