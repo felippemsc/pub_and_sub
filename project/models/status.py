@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 
 from ..backend import BACKEND_SESSION
-from ..constants import DATETIME_FORMAT, TIMEZONE
+from ..constants import DATETIME_FORMAT, TIMEZONE, TP_STATUS
 from ..schemas import StatusSchema
 
 LOG = logging.getLogger(__name__)
@@ -22,12 +22,14 @@ class StatusBaseModel:
     _schema = StatusSchema
 
     # TODO: Abstrair mudança de status via model (colocar funções de mudanças de status no model)
+    #  https://redis-py.readthedocs.io/en/latest/
     def __init__(self, key: str, state: str = None, last_log: str = None, logs: list = None, percentage: int = 0,
                  id_last_stage: int = 0, dh_last_stage: str = datetime.now(TIMEZONE).strftime(DATETIME_FORMAT)):
         """
         Instantiates Status Model
         """
         self._key = key
+
         self.state = state
         self.percentage = percentage
         self.last_log = last_log
@@ -40,11 +42,37 @@ class StatusBaseModel:
         else:
             self.logs = logs
 
-    def set(self):
+    @property
+    def state(self):
+        """
+        Gets the state
+        """
+        if self._state:
+            return self._state
+
+        return BACKEND_SESSION.get(f"{self._key}.state")
+
+    @state.setter
+    def state(self, code):
+        if code is None:
+            return
+
+        if code not in TP_STATUS:
+            raise Exception("Invalid state")
+
+        self._state = code
+
+    def save(self):
         """
         Save the status on the redis result backend
         """
-        serialized_status = self._schema().dumps(self)
+        if self._state:
+            result = BACKEND_SESSION.set(f"{self._key}.state", self._state)
+            if not result:
+                LOG.warning(f"Error during the set of {self._state} for key = {self._key}.code")
+                return
+
+        serialized_status = self._schema(exclude=('state',)).dumps(self)
         result = BACKEND_SESSION.set(self._key, serialized_status.data)
         if not result:
             LOG.warning(f"Error during the set of {serialized_status.data} for key = {self._key}")

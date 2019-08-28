@@ -30,7 +30,7 @@ class ExampleCollection:
         instance = self.model(**payload).commit()
 
         response.status = HTTP_CREATED
-        response.body = json.dumps(instance.to_dict())
+        response.body = json.dumps(instance.to_dict(excluding=['status']))
 
     @use_args(QueryStringSchema, locations=('query',))
     def on_get(self, request, response, query_sring):
@@ -44,7 +44,7 @@ class ExampleCollection:
 
         response.body = json.dumps({"limit": limit,
                                     "offset": offset,
-                                    "examples": self.model.serialize_many(instance_list)})
+                                    "examples": self.model.serialize_many(instance_list, excluding=["status.logs"])})
 
 
 class ExampleResource:

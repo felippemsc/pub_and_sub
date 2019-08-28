@@ -56,23 +56,29 @@ class BaseModel(AbstractConcreteBase, BASE):
             return None
         return StatusBaseModel.get(self.key_status)
 
-    def to_dict(self):
+    def to_dict(self, excluding: list = None):
         """
         Serialize the object to a dict
 
         :return: dict representation of the object
         """
-        serialized = self._serializer().dump(self)
+        if excluding is None:
+            excluding = []
+
+        serialized = self._serializer(exclude=excluding).dump(self)
         return serialized.data
 
     @classmethod
-    def serialize_many(cls, instances: list):
+    def serialize_many(cls, instances: list, excluding: list = None):
         """
         Serialize the object to a dict
 
         :return: list of dicts representing the objects
         """
-        serialized = cls._serializer(many=True, exclude=("status.logs",)).dump(instances)
+        if excluding is None:
+            excluding = []
+
+        serialized = cls._serializer(many=True, exclude=excluding).dump(instances)
         return serialized.data
 
     @classmethod
@@ -146,8 +152,8 @@ class BaseModel(AbstractConcreteBase, BASE):
         """
         Actions to execute after commiting
         """
-        init_status = StatusBaseModel(self.key_status, state='Z')
-        init_status.set()
+        init_status = StatusBaseModel(self.key_status, state="I")
+        init_status.save()
 
     def delete(self):
         """
